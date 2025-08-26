@@ -6,20 +6,30 @@
 #include <termios.h>
 
 using namespace std;
-// Declaração das variáveis globais
+struct termios originalTermio;
 int linha, coluna;
 string level;
-int locx, locy; // Adicionei como variáveis globais
+int locx, locy; 
 char ultecla;
+
+void restaurarTerminal() {
+    tcsetattr(STDIN_FILENO, TCSANOW, &originalTermio);
+}
 
 void lerTecla() {
     struct termios newt;
     
-    tcgetattr(STDIN_FILENO, &newt);
+    
+    tcgetattr(STDIN_FILENO, &originalTermio);
+    
+    newt = originalTermio;
     newt.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
     
     ultecla = getchar();
+    
+    
+    restaurarTerminal();
 }
 
 void lab(int lab[40][40], int largura, int altura) {
@@ -120,7 +130,7 @@ void limpar() {
 }
 
 int main() {
-    
+    cin >> level;
     // Carrega a fase
     int v[40][40];
     fase(v);
